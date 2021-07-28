@@ -64,7 +64,9 @@ class Plugin {
 
 		foreach ( $stacktrace->getFrames() as $frame ) {
 			// Check the the frame happened inside our theme or plugin
-			if ( $strContainsHelper( $frame->getFile(), 'plugins/ameliabooking' )) {
+			if ( $strContainsHelper( $frame->getFile(), 'plugins/ameliabooking' ) ||
+           $strContainsHelper( $frame->getFile(), 'plugins/p2p-amelia-cronjobs' )
+      ) {
 				// Send the event to Sentry
 				return $event;
 			}
