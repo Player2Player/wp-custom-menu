@@ -133,8 +133,19 @@ class Plugin {
     $user = wp_get_current_user();
     if ($user->exists() && !$user->has_cap('administrator')) {
       $userMenu = $this->createMenuItem("welcome {$user->first_name}", '', $i++);
-      $userMenu->classes[] = 'menu-item-has-children';
+      $userMenu->classes[] = 'menu-item-has-children';     
       $items[] = $userMenu;
+
+      $logoutUrl  = wp_logout_url(home_url());
+      $bookingUrl = home_url();
+      if ($user->has_cap('wpamelia-provider')) {
+        $bookingUrl = '/coach-panel';
+      }
+      else if ($user->has_cap('wpamelia-customer')) {
+        $bookingUrl = '/customer-panel';
+      }
+      $items[] = $this->createMenuItem("My bookings", $bookingUrl, $i++, $userMenu->ID);
+      $items[] = $this->createMenuItem("Logout", $logoutUrl, $i++, $userMenu->ID);
     }	  
     return $items;	
   }
