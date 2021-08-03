@@ -16,7 +16,7 @@ define('WP_SENTRY_PHP_DSN', 'https://623dae2636a64ffb8e6810311967a838@o931388.in
 define( 'WP_SENTRY_ERROR_TYPES', E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_USER_DEPRECATED );
 define( 'WP_SENTRY_SEND_DEFAULT_PII', true );
 define( 'WP_SENTRY_VERSION', 'v4.5.0' );
-define( 'WP_SENTRY_ENV', 'production' );
+define( 'WP_SENTRY_ENV', 'staging' );
 
 class Plugin {
   

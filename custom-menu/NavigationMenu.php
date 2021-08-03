@@ -45,7 +45,7 @@ class Plugin {
 		if ( !is_admin() && !$this->hasRegistered ){
 			$this->hasRegistered = true;
 
-			add_filter( 'wp_get_nav_menu_items', array($this, 'addMenuItems' ), 20, 2 );
+      add_filter( 'wp_nav_menu_objects', array($this, 'addMenuItems' ), 10, 2 );
 		}
   }
 
@@ -56,9 +56,9 @@ class Plugin {
    * @param $url        - menu item url
    * @param $order      - where the item should appear in the menu
    * @param int $parent - the item's parent item
-   * @return \stdClass
+   * @return WP_Post
   */ 
-  private function createMenuItem( $title, $url, $order, $parent = 0 ){
+  private function createMenuItem( $title, $url, $order, $parent = '0' ){
     $item = new \stdClass();
     $item->ID = 1000000 + $order + $parent;
     $item->db_id = $item->ID;
@@ -66,15 +66,16 @@ class Plugin {
     $item->url = $url;
     $item->menu_order = $order;
     $item->menu_item_parent = $parent;
-    $item->type = '';
-    $item->object = '';
-    $item->object_id = '';
+    $item->type = 'custom';
+    $item->object = 'custom';
+    $item->object_id = (string)$item->ID;
     $item->classes = array();
     $item->target = '';
     $item->attr_title = '';
     $item->description = '';
     $item->xfn = '';
-    $item->status = '';
+    $item->status = 'publish';    
+    $item->post_type = 'nav_menu_item';
     return $item;
   }
   
@@ -108,19 +109,20 @@ class Plugin {
     return $categories;
   }
 
-  public function addMenuItems( $items, $menu ) {    
+  public function addMenuItems($items, $args) {    
     // only add item to a specific menu  		
-    if ( $menu->slug !== 'main-menu' ) {    
-      return $items;
-    }
-    $searchMenu = $items[0]->ID;
-    $bookingMenu = $items[1]->ID;
+    if ($args->theme_location != 'primary-menu')  return $items;
+
+    $items[1]->classes[] = 'menu-item-has-children';
+    $items[2]->classes[] = 'menu-item-has-children';
+    $searchMenu = (string)$items[1]->ID;
+    $bookingMenu = (string)$items[2]->ID;
     $locations = $this->getAmeliaLocations();  
-    $i=10;
+    $i=1;
     foreach($locations as $menuItem) {
-      $top = $this->createMenuItem( $menuItem->name, "/coaches/{$menuItem->slug}", $i++, $searchMenu);
-      $items[] = $top;	  
-      $categories = $this->getAmeliaCategories($menuItem->id);	
+      $top = $this->createMenuItem( $menuItem->name, "/coaches/{$menuItem->slug}", $i++, $searchMenu);      
+      $categories = $this->getAmeliaCategories($menuItem->id);
+      $items[] = $top;
       $items[] = $this->createMenuItem('see all', "/coaches/{$menuItem->slug}", $i++, $top->ID);
       foreach($categories as $menuCategory) {
         $items[] = $this->createMenuItem( $menuCategory->name, "/coaches/{$menuItem->slug}/{$menuCategory->slug}", $i++, $top->ID);
