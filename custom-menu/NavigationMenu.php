@@ -117,7 +117,7 @@ class Plugin {
     $items[2]->classes[] = 'menu-item-has-children';
     $searchMenu = (string)$items[1]->ID;
     $bookingMenu = (string)$items[2]->ID;
-    $locations = $this->getAmeliaLocations();  
+    $locations = $this->getAmeliaLocations();
     $i=1;
     foreach($locations as $menuItem) {
       $top = $this->createMenuItem( $menuItem->name, "/coaches/{$menuItem->slug}", $i++, $searchMenu);      
@@ -128,6 +128,13 @@ class Plugin {
         $items[] = $this->createMenuItem( $menuCategory->name, "/coaches/{$menuItem->slug}/{$menuCategory->slug}", $i++, $top->ID);
       }  
       $items[] = $this->createMenuItem( $menuItem->name, "/sports/{$menuItem->slug}", $i++, $bookingMenu);
+    }
+
+    $user = wp_get_current_user();
+    if ($user->exists() && !$user->has_cap('administrator')) {
+      $userMenu = $this->createMenuItem("welcome {$user->first_name}", '', $i++);
+      $userMenu->classes[] = 'menu-item-has-children';
+      $items[] = $userMenu;
     }	  
     return $items;	
   }
