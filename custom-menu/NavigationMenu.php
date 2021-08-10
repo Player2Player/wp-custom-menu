@@ -4,7 +4,7 @@
 Plugin Name: P2P Custom menu
 Plugin URI: https://github.com/Player2Player/wp-custom-menu
 Description: Custom menu for getting locations and categories from amelia plugin
-Version: 1.0
+Version: 1.0.1
 Author: p2p
 Author URI: https://player2player.com/
 Text Domain: p2p
