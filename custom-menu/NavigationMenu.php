@@ -4,7 +4,7 @@
 Plugin Name: P2P Custom menu
 Plugin URI: https://github.com/Player2Player/wp-custom-menu
 Description: Custom menu for getting locations and categories from amelia plugin
-Version: 1.0.1
+Version: 1.0.3
 Author: p2p
 Author URI: https://player2player.com/
 Text Domain: p2p
@@ -83,16 +83,27 @@ class Plugin {
     global $wpdb;
     $locations = $wpdb->get_results( $wpdb->prepare( 
       "
-          SELECT      `id`, `name`, `slug`
-          FROM        `wp_amelia_locations`
-          WHERE       `status` = %s
-          ORDER BY    `id` ASC
-      ",
-          'visible'
+        SELECT id,name,slug, 1 as category FROM `wp_amelia_locations` where locationCategoryId is null
+        UNION ALL
+        select id,name,slug, 2 as category  FROM `wp_amelia_locations_categories`
+        order by name	
+      "
     )); 	
     return $locations;
   }
   
+  private function getAmeliaLocationsByCategory($category) {			
+    global $wpdb;
+    $locations = $wpdb->get_results( $wpdb->prepare( 
+      "
+        SELECT id,name,slug FROM `wp_amelia_locations` where locationCategoryId = %d
+        order by name	
+      ",
+        $category
+    )); 	
+    return $locations;
+  }
+
   private function getAmeliaCategories($locationId) {			
     global $wpdb;
     $categories = $wpdb->get_results( $wpdb->prepare(
@@ -104,9 +115,26 @@ class Plugin {
       where pl.locationId = %d
       order by b.position     
       ",
-          $locationId
+        $locationId
     )); 	
     return $categories;
+  }
+
+  public function addSubCategoriesMenus(&$items, $searchMenu, $bookingMenu, $locationItem) {
+    $locations = $this->getAmeliaLocationsByCategory($locationItem->id);
+    $i=1;
+    foreach($locations as $menuItem) {
+      $top = $this->createMenuItem($menuItem->name, "/coaches/{$menuItem->slug}", $i++, $searchMenu->ID);
+      $items[] = $top;
+      $items[] = $this->createMenuItem($menuItem->name, "/sports/{$menuItem->slug}", $i++, $bookingMenu->ID);
+
+      $categories = $this->getAmeliaCategories($menuItem->id);
+      if (count($categories))
+        $items[] = $this->createMenuItem('see all', "/coaches/{$menuItem->slug}", $i++, $top->ID);
+      foreach($categories as $menuCategory) {
+        $items[] = $this->createMenuItem( $menuCategory->name, "/coaches/{$menuItem->slug}/{$menuCategory->slug}", $i++, $top->ID);
+      }
+    }
   }
 
   public function addMenuItems($items, $args) {    
@@ -120,14 +148,24 @@ class Plugin {
     $locations = $this->getAmeliaLocations();
     $i=1;
     foreach($locations as $menuItem) {
-      $top = $this->createMenuItem( $menuItem->name, "/coaches/{$menuItem->slug}", $i++, $searchMenu);      
-      $categories = $this->getAmeliaCategories($menuItem->id);
+      $isLocationCategory = $menuItem->category === '2';
+      $top = $this->createMenuItem( $menuItem->name, $isLocationCategory ? "" : "/coaches/{$menuItem->slug}", $i++, $searchMenu);            
       $items[] = $top;
-      $items[] = $this->createMenuItem('see all', "/coaches/{$menuItem->slug}", $i++, $top->ID);
+      $topBooking = $this->createMenuItem( $menuItem->name, $isLocationCategory ? "" : "/sports/{$menuItem->slug}", $i++, $bookingMenu);
+      $items[] = $topBooking;
+
+      // if its a category then get locations by category and add them to the menu
+      if ($isLocationCategory) {
+        $this->addSubCategoriesMenus($items, $top, $topBooking, $menuItem);
+        continue;
+      }
+            
+      $categories = $this->getAmeliaCategories($menuItem->id);
+      if (count($categories))
+        $items[] = $this->createMenuItem('see all', "/coaches/{$menuItem->slug}", $i++, $top->ID);
       foreach($categories as $menuCategory) {
         $items[] = $this->createMenuItem( $menuCategory->name, "/coaches/{$menuItem->slug}/{$menuCategory->slug}", $i++, $top->ID);
-      }  
-      $items[] = $this->createMenuItem( $menuItem->name, "/sports/{$menuItem->slug}", $i++, $bookingMenu);
+      }      
     }
 
     $user = wp_get_current_user();
