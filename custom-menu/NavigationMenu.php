@@ -4,7 +4,7 @@
 Plugin Name: P2P Custom menu
 Plugin URI: https://github.com/Player2Player/wp-custom-menu
 Description: Custom menu for getting locations and categories from amelia plugin
-Version: 1.0.3
+Version: 1.0.5
 Author: p2p
 Author URI: https://player2player.com/
 Text Domain: p2p
@@ -83,9 +83,9 @@ class Plugin {
     global $wpdb;
     $locations = $wpdb->get_results( $wpdb->prepare( 
       "
-        SELECT id,name,slug, 1 as category FROM `wp_amelia_locations` where locationCategoryId is null
+        SELECT id,name,slug, 1 as category, landing FROM `wp_amelia_locations` where locationCategoryId is null
         UNION ALL
-        select id,name,slug, 2 as category  FROM `wp_amelia_locations_categories`
+        select id,name,slug, 2 as category, landing  FROM `wp_amelia_locations_categories`
         order by name	
       "
     )); 	
@@ -96,7 +96,7 @@ class Plugin {
     global $wpdb;
     $locations = $wpdb->get_results( $wpdb->prepare( 
       "
-        SELECT id,name,slug FROM `wp_amelia_locations` where locationCategoryId = %d
+        SELECT id,name,slug,landing FROM `wp_amelia_locations` where locationCategoryId = %d
         order by name	
       ",
         $category
@@ -124,9 +124,17 @@ class Plugin {
     $locations = $this->getAmeliaLocationsByCategory($locationItem->id);
     $i=1;
     foreach($locations as $menuItem) {
-      $top = $this->createMenuItem($menuItem->name, "/coaches/{$menuItem->slug}", $i++, $searchMenu->ID);
+      $top = $this->createMenuItem($menuItem->name, 
+        $menuItem->landing ? "/{$menuItem->landing}" : "/coaches/{$menuItem->slug}", 
+        $i++, 
+        $searchMenu->ID
+      );
       $items[] = $top;
-      $items[] = $this->createMenuItem($menuItem->name, "/sports/{$menuItem->slug}", $i++, $bookingMenu->ID);
+      $items[] = $this->createMenuItem($menuItem->name,
+        $menuItem->landing ? "/{$menuItem->landing}" : "/sports/{$menuItem->slug}",
+        $i++,
+        $bookingMenu->ID
+      );
 
       $categories = $this->getAmeliaCategories($menuItem->id);
       if (count($categories))
@@ -149,9 +157,17 @@ class Plugin {
     $i=1;
     foreach($locations as $menuItem) {
       $isLocationCategory = $menuItem->category === '2';
-      $top = $this->createMenuItem( $menuItem->name, $isLocationCategory ? "" : "/coaches/{$menuItem->slug}", $i++, $searchMenu);            
+      $top = $this->createMenuItem($menuItem->name, 
+        $menuItem->landing ? "/{$menuItem->landing}" : "/coaches/{$menuItem->slug}",
+        $i++, 
+        $searchMenu
+      );            
       $items[] = $top;
-      $topBooking = $this->createMenuItem( $menuItem->name, $isLocationCategory ? "" : "/sports/{$menuItem->slug}", $i++, $bookingMenu);
+      $topBooking = $this->createMenuItem($menuItem->name,
+        $menuItem->landing ? "/{$menuItem->landing}" : "/sports/{$menuItem->slug}",
+        $i++, 
+        $bookingMenu
+      );
       $items[] = $topBooking;
 
       // if its a category then get locations by category and add them to the menu
