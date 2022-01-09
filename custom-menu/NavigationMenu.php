@@ -83,11 +83,13 @@ class Plugin {
     global $wpdb;
     $locations = $wpdb->get_results( $wpdb->prepare( 
       "
-        SELECT id,name,slug, 1 as category, landing FROM `wp_amelia_locations` where locationCategoryId is null
+        SELECT id,name,slug, 1 as category, landing FROM `wp_amelia_locations` 
+        where locationCategoryId is null and status = %s
         UNION ALL
         select id,name,slug, 2 as category, landing  FROM `wp_amelia_locations_categories`
         order by name	
-      "
+      ",
+       'visible'
     )); 	
     return $locations;
   }
@@ -96,10 +98,11 @@ class Plugin {
     global $wpdb;
     $locations = $wpdb->get_results( $wpdb->prepare( 
       "
-        SELECT id,name,slug,landing FROM `wp_amelia_locations` where locationCategoryId = %d
+        SELECT id,name,slug,landing FROM `wp_amelia_locations` 
+        where locationCategoryId = %d and status = %s
         order by name	
       ",
-        $category
+        $category, 'visible'
     )); 	
     return $locations;
   }
