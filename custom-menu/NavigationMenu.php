@@ -85,8 +85,6 @@ class Plugin {
       "
         SELECT id,name,slug, 1 as category, landing FROM `wp_amelia_locations` 
         where locationCategoryId is null and status = %s
-        UNION ALL
-        select id,name,slug, 2 as category, landing  FROM `wp_amelia_locations_categories`
         order by name	
       ",
        'visible'
