@@ -17,14 +17,14 @@
         ?>
         <div id="post-<?php echo $id?>" class="et_pb_portfolio_item et_pb_grid_item">
           <?php
-            $fullName = "{$item->getFullName()}";
-            $picture  =  $item->getPicture() ? $item->getPicture()->getFullPath() : $genericCoachImage;
-            $profileUrl = $item->getSlug() ? "/coach/{$item->getSlug()->getValue()}" : "";
+            $fullName = "{$item['firstName']} {$item['lastName']}";
+            $picture  =  $item['pictureFullPath'] ? $item['pictureFullPath'] : $genericCoachImage;
+            $profileUrl = $item['slug'] ? "/coach/{$item['slug']}" : "";
             $categories = [];
-            foreach($item->getServiceList()->getItems() as $service) {
-              $categoryId = $service->getCategoryId()->getValue();
+            foreach($item['services'] as $service) {              
+              $categoryId = $service['categoryId'];
               if (!array_key_exists($categoryId, $categories)) {
-                $categories[$categoryId] = $service->getCategory();
+                $categories[$categoryId] = $service;
               }
             }
             $countCategories = count($categories);
@@ -49,8 +49,8 @@
               <?php
                 $i=1;
                 foreach($categories as $category) {
-                  $cat = ucfirst(strtolower($category->getName()->getValue()));
-                  $catUrl = "/coaches/{$atts['location']}/{$category->getSlug()->getValue()}"
+                  $cat = ucfirst(strtolower($category['categoryName']));
+                  $catUrl = "/coaches/{$atts['location']}/{$category['categorySlug']}"
               ?>
               <a href="<?php echo $catUrl ?>"
                   title="<?php echo $cat ?>"><?php echo $cat ?></a><?php echo $i < $countCategories ? ',' : '' ?>

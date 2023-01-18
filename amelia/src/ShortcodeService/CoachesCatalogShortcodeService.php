@@ -1,6 +1,12 @@
 <?php
 
+
 namespace P2P\Amelia\ShortcodeService;
+
+use P2P\Amelia\Infrastructure\Container;
+use P2P\Amelia\Repository\LocationRepository;
+use P2P\Amelia\Repository\CategoryRepository;
+use P2P\Amelia\Repository\ProviderRepository;
 
 /**
  * Class CoachesCatalogShortcodeService
@@ -46,7 +52,38 @@ class CoachesCatalogShortcodeService
       $locationSlug = $atts['location'];
       $categorySlug = $atts['category'];
 
-      $result['location']['name'] = 'Lake Travis';
+      /** @var LocationRepository $locationRepository  */
+      $locationRepository = Container::instance()->get('location.repository');
+
+      /** @var CategoryRepository $categoryRepository  */
+      $categoryRepository = Container::instance()->get('category.repository');
+
+      /** @var ProviderRepository $providerRepository  */
+      $providerRepository = Container::instance()->get('provider.repository');
+
+      try {
+        $location = $locationRepository->getBySlug($locationSlug);        
+        
+        $categoryId = null;
+        $result['category'] = null;
+        if (!empty($categorySlug)) {
+          $category = $categoryRepository->getBySlug($categorySlug);
+          if (!$category || empty($category)) {
+            self::force404();
+          }  
+          $result['category'] = $category;
+          $categoryId = $result['category']['id'];
+        }
+        
+        $result['location'] = $location;    
+        $locationId = $result['location']['id'];
+        $criteria = array('location' => $locationId, 'category' => $categoryId);
+        $coaches = $providerRepository->getWithServices($criteria);
+        $result['coaches'] = $coaches;
+      }
+      catch(\Exception $exc) {
+        self::force404();
+      }
 
       return $result;
     }
