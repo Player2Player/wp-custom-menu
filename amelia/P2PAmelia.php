@@ -50,6 +50,7 @@ class Plugin {
     public static function registerShortcodes() {
         add_shortcode('p2pcoaches', array('P2P\Amelia\ShortcodeService\CoachesCatalogShortcodeService', 'shortcodeHandler'));
         add_shortcode('p2psports', array('P2P\Amelia\ShortcodeService\SportsCatalogShortcodeService', 'shortcodeHandler'));
+        add_shortcode('p2pcoach', array('P2P\Amelia\ShortcodeService\CoachProfileShortcodeService', 'shortcodeHandler'));
     }
 
     //p2p: query vars

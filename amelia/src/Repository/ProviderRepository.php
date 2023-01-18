@@ -87,24 +87,85 @@ class ProviderRepository {
             $this->parseUserRow($row, $providerRows, $serviceRows, $providerServiceRows);
         }
 
-        $providers = [];
-        foreach ($providerRows as $providerKey => $providerArray) {
-            $providers[$providerKey] = $providerArray;
+        return $this->parseUsersArray($providerRows, $serviceRows, $providerServiceRows);
+    }
 
-            if ($providerServiceRows && array_key_exists($providerKey, $providerServiceRows)) {
-                $providers[$providerKey]['services'] = [];
-                foreach ((array)$providerServiceRows[$providerKey] as $serviceKey => $providerService) {
-                    if (array_key_exists($serviceKey, $serviceRows)) {
-                        $providers[$providerKey]['services'][$serviceKey] = array_merge(
-                            $serviceRows[$serviceKey],
-                            $providerService
-                        ); 
-                    }
-                }
+    /**
+     * @param $slug
+     * @return array
+     */
+    public function getProfile($slug)
+    {
+      try {
+        global $wpdb;
+        $sql = "SELECT
+                u.id AS user_id,
+                u.slug as user_slug,
+                u.status AS user_status,
+                u.externalId AS external_id,
+                u.firstName AS user_firstName,
+                u.lastName AS user_lastName,
+                u.email AS user_email,
+                u.note AS note,
+                u.description AS description,
+                u.phone AS phone,
+                u.pictureFullPath AS picture_full_path,
+                u.pictureThumbPath AS picture_thumb_path,
+                u.zoomUserId AS user_zoom_user_id,
+                lt.locationId AS user_locationId,
+                st.serviceId AS service_id,
+                st.price AS service_price,
+                st.minCapacity AS service_minCapacity,
+                st.maxCapacity AS service_maxCapacity,
+                s.name AS service_name,
+                s.description AS service_description,
+                s.color AS service_color,
+                s.status AS service_status,
+                s.categoryId AS service_categoryId,
+                c.name AS service_categoryName,
+                c.slug AS service_categorySlug,
+                s.duration AS service_duration,
+                s.bringingAnyone AS service_bringingAnyone,
+                s.show AS service_show,
+                s.aggregatedPrice AS service_aggregatedPrice,
+                s.pictureFullPath AS service_picture_full,
+                s.pictureThumbPath AS service_picture_thumb,
+                s.recurringCycle AS service_recurringCycle,
+                s.recurringSub AS service_recurringSub,
+                s.recurringPayment AS service_recurringPayment,
+                s.settings AS service_settings,
+                s.translations AS service_translations,
+                s.deposit AS service_deposit,
+                s.depositPayment AS service_depositPayment,
+                s.depositPerPerson AS service_depositPerPerson
+            FROM {$wpdb->prefix}amelia_users u
+            LEFT JOIN {$wpdb->prefix}amelia_providers_to_locations lt ON lt.userId = u.id
+            LEFT JOIN {$wpdb->prefix}amelia_providers_to_services st ON st.userId = u.id
+            LEFT JOIN {$wpdb->prefix}amelia_services s ON s.id = st.serviceId
+            LEFT JOIN {$wpdb->prefix}amelia_categories c ON c.id = s.categoryId
+            WHERE u.type = %s AND u.slug = %s
+            ORDER BY u.slug";
+
+
+            $sql = $wpdb->prepare($sql, 'provider', $slug);
+            $result = $wpdb->get_results($sql, ARRAY_A);
+
+            if (!$result) throw new \Exception();
+
+            $providerRows = [];
+            $serviceRows = [];
+            $providerServiceRows = [];
+
+            foreach ($result as $row) {
+                $this->parseUserRow($row, $providerRows, $serviceRows, $providerServiceRows);
             }
-        }
+    
+            $providers = $this->parseUsersArray($providerRows, $serviceRows, $providerServiceRows);
+            return reset($providers);
 
-        return $providers;
+        } catch (\Exception $e) {           
+            throw new \Exception('Unable to find by slug in ' . __CLASS__, $e->getCode(), $e);
+        }
     }
 
     private function parseUserRow($row, &$providerRows, &$serviceRows, &$providerServiceRows)
@@ -393,6 +454,35 @@ class ProviderRepository {
                 'maxCapacity'   => (int)$row['service_maxCapacity']
             ];
         }
+    }
+
+    /**
+     * Parse users array.
+     *
+     * @param array $providerRows
+     * @param array $serviceRows
+     * @param array $providerServiceRows
+     *
+     * @return array
+     */
+    private function parseUsersArray($providerRows, $serviceRows, $providerServiceRows) {
+        $providers = [];
+        foreach ($providerRows as $providerKey => $providerArray) {
+            $providers[$providerKey] = $providerArray;
+
+            if ($providerServiceRows && array_key_exists($providerKey, $providerServiceRows)) {
+                $providers[$providerKey]['services'] = [];
+                foreach ((array)$providerServiceRows[$providerKey] as $serviceKey => $providerService) {
+                    if (array_key_exists($serviceKey, $serviceRows)) {
+                        $providers[$providerKey]['services'][$serviceKey] = array_merge(
+                            $serviceRows[$serviceKey],
+                            $providerService
+                        ); 
+                    }
+                }
+            }
+        }
+        return $providers;
     }
 
 }

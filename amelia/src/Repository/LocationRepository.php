@@ -19,4 +19,20 @@ class LocationRepository {
     
             return $result;
         }
+
+        /**
+        * @param int $id
+        * @return array
+        */
+        public function getById($id) {
+            global $wpdb;
+    
+            $sql = "SELECT * FROM {$wpdb->prefix}amelia_locations WHERE id = %d";
+            $sql = $wpdb->prepare($sql, $id);
+    
+            $result = $wpdb->get_row($sql, ARRAY_A);
+    
+            return $result;
+        }
+
 }
