@@ -12,16 +12,29 @@ class ProviderRepository {
         global $wpdb;
 
         $where = [];
-        $params = ['provider', 'visible'];        
-
-        if ($criteria['location']) {
-          $params[] = $criteria['location'];
-          $where[] = "lt.locationId = %d";
-        }
+        $params = ['provider', 'visible'];
 
         if ($criteria['category']) {
-          $params[] = $criteria['category'];
-          $where[] = "s.categoryId = %d";
+            $params[] = $criteria['category'];
+            $where[] = "s.categoryId = %d";
+        }
+
+        if ($criteria['location']) {
+            $location = $criteria['location'];
+            array_push($params, $location, $location, $location, $location, $location);
+            $where[] = "lt.locationId = %d 
+                  OR u.id in (  
+                    select wk.userId from {$wpdb->prefix}amelia_providers_to_weekdays wk
+                      inner join {$wpdb->prefix}amelia_providers_to_periods pp on wk.id = pp.weekdayId
+                      left join {$wpdb->prefix}amelia_providers_to_periods_location ppl on pp.id = ppl.periodId
+                      where pp.locationId = %d or ppl.locationId = %d
+                  )
+                  OR u.id in (
+                    select sp.userId from {$wpdb->prefix}amelia_providers_to_specialdays sp 
+                        inner join {$wpdb->prefix}amelia_providers_to_specialdays_periods pp on sp.id = pp.specialDayId
+                        left join {$wpdb->prefix}amelia_providers_to_specialdays_periods_location ppl on pp.id = ppl.periodId
+                        where pp.locationId = %d or ppl.locationId = %d                    
+                  )";
         }
 
         $where = $where ? ' AND ' . implode(' AND ', $where) : '';
