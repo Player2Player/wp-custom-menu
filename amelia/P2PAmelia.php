@@ -4,7 +4,7 @@
 Plugin Name: P2P Amelia customizations
 Plugin URI: https://github.com/Player2Player/wp-plugins
 Description: Customizations related with the amelia plugin
-Version: 1.0.3
+Version: 1.0.3.rev1
 Author: p2p
 Author URI: https://player2player.com/
 Text Domain: p2p

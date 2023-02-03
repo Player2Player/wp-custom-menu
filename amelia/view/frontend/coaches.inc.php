@@ -1,4 +1,9 @@
-<div class="et_pb_column et_pb_column_4_4 et_pb_column_1  et_pb_css_mix_blend_mode_passthrough et-last-child">
+<?php if ($data['location']['locationCategoryId'] == 2 && $data['location']['slug'] != 'frisco') { ?>
+<div style="height: auto; width: 100%" >
+    <img style="width: 100%; height: auto" decoding="async" src="https://dev.player2player.com/wp-content/uploads/2023/02/thumbnail_webbanner-addingcoaches-2.png" alt="" >
+</div>
+<?php } ?>
+<div style="padding-top: 40px" class="et_pb_column et_pb_column_4_4 et_pb_column_1  et_pb_css_mix_blend_mode_passthrough et-last-child">
   <div class="et_pb_module et_pb_text et_pb_text_1  et_pb_text_align_center et_pb_bg_layout_light">
     <div class="et_pb_text_inner">
       <h1>
@@ -21,7 +26,7 @@
             $picture  =  $item['pictureFullPath'] ? $item['pictureFullPath'] : $genericCoachImage;
             $profileUrl = $item['slug'] ? "/coach/{$item['slug']}" : "";
             $categories = [];
-            foreach($item['services'] as $service) {              
+            foreach($item['services'] as $service) {
               $categoryId = $service['categoryId'];
               if (!array_key_exists($categoryId, $categories)) {
                 $categories[$categoryId] = $service;
