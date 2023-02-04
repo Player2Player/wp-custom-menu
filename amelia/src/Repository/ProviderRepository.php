@@ -16,13 +16,13 @@ class ProviderRepository {
 
         if ($criteria['category']) {
             $params[] = $criteria['category'];
-            $where[] = "s.categoryId = %d";
+            $where[] = "(s.categoryId = %d)";
         }
 
         if ($criteria['location']) {
             $location = $criteria['location'];
             array_push($params, $location, $location, $location, $location, $location);
-            $where[] = "lt.locationId = %d 
+            $where[] = "(lt.locationId = %d 
                   OR u.id in (  
                     select wk.userId from {$wpdb->prefix}amelia_providers_to_weekdays wk
                       inner join {$wpdb->prefix}amelia_providers_to_periods pp on wk.id = pp.weekdayId
@@ -34,7 +34,7 @@ class ProviderRepository {
                         inner join {$wpdb->prefix}amelia_providers_to_specialdays_periods pp on sp.id = pp.specialDayId
                         left join {$wpdb->prefix}amelia_providers_to_specialdays_periods_location ppl on pp.id = ppl.periodId
                         where pp.locationId = %d or ppl.locationId = %d                    
-                  )";
+                  ))";
         }
 
         $where = $where ? ' AND ' . implode(' AND ', $where) : '';
@@ -83,7 +83,7 @@ class ProviderRepository {
         LEFT JOIN {$wpdb->prefix}amelia_providers_to_services st ON st.userId = u.id
         LEFT JOIN {$wpdb->prefix}amelia_services s ON s.id = st.serviceId
         LEFT JOIN {$wpdb->prefix}amelia_categories c ON c.id = s.categoryId
-        WHERE u.type = %s AND u.status = %s $where
+        WHERE (u.type = %s AND u.status = %s) $where
         ORDER BY u.slug";
         $sql = $wpdb->prepare($sql, $params);
 
