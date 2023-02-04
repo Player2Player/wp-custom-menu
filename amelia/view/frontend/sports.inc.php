@@ -1,7 +1,7 @@
 <?php if ($data['location']['locationCategoryId'] == 2 && $data['location']['slug'] != 'frisco') { ?>
     <div style="height: auto; width: 100%" >
         <img style="width: 100%; height: auto" decoding="async"
-             src="https://dev.player2player.com/wp-content/uploads/2023/02/thumbnail_webbanner-addingcoaches-1.png" alt="" >
+             src="https://player2player.com/wp-content/uploads/2023/02/thumbnail_webbanner-addingcoaches-1.png" alt="" >
     </div>
 <?php } ?>
 <div style="padding-top: 40px" class="et_pb_column et_pb_column_4_4 et_pb_column_0  et_pb_css_mix_blend_mode_passthrough et-last-child">
