@@ -21,3 +21,13 @@
   <!-- .et_pb_text -->
 </div>
 <!-- .et_pb_column -->
+<script>
+    jQuery(document).ready(function () {
+        jQuery('#main-header').addClass('fixed-header et-fixed-header');
+        window.onscroll = function(event) {
+          event.stopPropagation();
+          jQuery('#main-header').addClass('fixed-header et-fixed-header');
+          jQuery('#page-container').css({ paddingTop: 70 });
+        };
+    });
+</script>
