@@ -4,7 +4,7 @@
              src="https://player2player.com/wp-content/uploads/2023/02/thumbnail_webbanner-addingcoaches-1.png" alt="" >
     </div>
 <?php } ?>
-<div style="padding-top: 40px" class="et_pb_column et_pb_column_4_4 et_pb_column_0  et_pb_css_mix_blend_mode_passthrough et-last-child">
+<div style="margin-top: -80px" class="et_pb_column et_pb_column_4_4 et_pb_column_0  et_pb_css_mix_blend_mode_passthrough et-last-child">
   <div class="et_pb_module et_pb_text et_pb_text_0  et_pb_text_align_left et_pb_bg_layout_light">
     <div class="et_pb_text_inner">
       <h1 style="text-align: center" class="entry-title main_title">
@@ -23,11 +23,10 @@
 <!-- .et_pb_column -->
 <script>
     jQuery(document).ready(function () {
-        jQuery('#main-header').addClass('fixed-header et-fixed-header');
         window.onscroll = function(event) {
           event.stopPropagation();
           jQuery('#main-header').addClass('fixed-header et-fixed-header');
-          jQuery('#page-container').css({ paddingTop: 70 });
         };
+        window.scrollTo({ top: 10, behavior: 'smooth'})
     });
 </script>
