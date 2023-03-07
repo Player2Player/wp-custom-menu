@@ -4,7 +4,7 @@
 Plugin Name: P2P Amelia customizations
 Plugin URI: https://github.com/Player2Player/wp-plugins
 Description: Customizations related with the amelia plugin
-Version: 1.0.3.rev1
+Version: 1.0.4
 Author: p2p
 Author URI: https://player2player.com/
 Text Domain: p2p
@@ -51,6 +51,7 @@ class Plugin {
         add_shortcode('p2pcoaches', array('P2P\Amelia\ShortcodeService\CoachesCatalogShortcodeService', 'shortcodeHandler'));
         add_shortcode('p2psports', array('P2P\Amelia\ShortcodeService\SportsCatalogShortcodeService', 'shortcodeHandler'));
         add_shortcode('p2pcoach', array('P2P\Amelia\ShortcodeService\CoachProfileShortcodeService', 'shortcodeHandler'));
+        add_shortcode('p2pevent', array('P2P\Amelia\ShortcodeService\EventDetailShortcodeService', 'shortcodeHandler'));
     }
 
     //p2p: query vars
